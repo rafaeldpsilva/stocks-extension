@@ -111,15 +111,20 @@ export const StockDetailsScreen = GObject.registerClass({
       this._sync().catch(e => log(e))
     })
 
-    this._chart = new Chart({
-      data: quoteHistorical.Data,
-      x1: quoteHistorical.MarketStart,
-      x2: quoteHistorical.MarketEnd,
-      barData: quoteHistorical.VolumeData,
-      additionalYData: this._isIntrayDayChart ? [this._quoteSummary.PreviousClose] : [],
-      maxGapSize: CHART_RANGES_MAX_GAP[this._selectedChartRange],
-      onDraw: this._onChartDraw.bind(this)
-    })
+    if (quoteHistorical && quoteHistorical.Data) {
+      this._chart = new Chart({
+        data: quoteHistorical.Data,
+        x1: quoteHistorical.MarketStart,
+        x2: quoteHistorical.MarketEnd,
+        barData: quoteHistorical.VolumeData,
+        additionalYData: this._isIntrayDayChart ? [this._quoteSummary.PreviousClose] : [],
+        maxGapSize: CHART_RANGES_MAX_GAP[this._selectedChartRange],
+        onDraw: this._onChartDraw.bind(this)
+      })
+    } else {
+      this._chart = null
+      log(`Warning: Historical quote data unavailable for ${this._passedQuoteSummary.Symbol}`)
+    }
 
     const chartValueHoverBox = new St.BoxLayout({
       style_class: 'chart-hover-box',
@@ -155,14 +160,15 @@ export const StockDetailsScreen = GObject.registerClass({
     this.add_child(stockDetailsTabButtonGroup)
     this.add_child(stockDetails)
 
-    // FIXME: adding chart throws a lot of "Can't update stage views actor", no clue what is going on here
-    this.add_child(chartRangeButtonGroup)
-    this.add_child(this._chart)
-    this.add_child(chartValueHoverBox)
+    if (this._chart) {
+      this.add_child(chartRangeButtonGroup)
+      this.add_child(this._chart)
+      this.add_child(chartValueHoverBox)
+    }
   }
 
   _onChartDraw ({ width, height, cairoContext, secondaryColor }) {
-    if (this._isIntrayDayChart && this._quoteSummary && this._quoteSummary.PreviousClose) {
+    if (this._chart && this._isIntrayDayChart && this._quoteSummary && this._quoteSummary.PreviousClose) {
       const [minValueY, maxValueY] = this._chart.getYRange()
 
       const convertedValue = this._chart.encodeValue(this._quoteSummary.PreviousClose, minValueY, maxValueY, 0, height)

@@ -168,17 +168,9 @@ export const StockCard = GObject.registerClass({
       text: '  |  '
     })
 
-    const additionalInformationLabel = new St.Label({
-      style_class: 'additional-quote-information-label small-text fwb',
-      text: `  |  ${fallbackIfNaN(Math.round(this.cardItem.Volume / 1000))} k  |  ${toLocalDateFormat(this.cardItem.Timestamp, Translations.FORMATS.DEFAULT_DATE_TIME)}`
-    })
-
-    additionalInformationLabel.get_clutter_text().set_ellipsize(Pango.EllipsizeMode.NONE)
-
     additionalInformationBox.add_child(quoteChangeLabel)
     additionalInformationBox.add_child(placeHolder)
     additionalInformationBox.add_child(quoteChangePercentLabel)
-    additionalInformationBox.add_child(additionalInformationLabel)
 
     return additionalInformationBox
   }
@@ -206,17 +198,15 @@ export const StockCard = GObject.registerClass({
       text: '  |  '
     })
 
-    const additionalInformationLabel = new St.Label({
+    const marketLabel = new St.Label({
       style_class: 'additional-quote-information-label small-text fwb',
-      text: ` |  ${Translations.STOCKS.PRE_MARKET}  |  ${toLocalDateFormat(this.cardItem.PreMarketTimestamp, Translations.FORMATS.DEFAULT_DATE_TIME)}`
+      text: ` |  ${Translations.STOCKS.PRE_MARKET}`
     })
-
-    additionalInformationLabel.get_clutter_text().set_ellipsize(Pango.EllipsizeMode.NONE)
 
     additionalInformationBox.add_child(quoteChangeLabel)
     additionalInformationBox.add_child(placeHolder)
     additionalInformationBox.add_child(quoteChangePercentLabel)
-    additionalInformationBox.add_child(additionalInformationLabel)
+    additionalInformationBox.add_child(marketLabel)
 
     return additionalInformationBox
   }
@@ -244,17 +234,15 @@ export const StockCard = GObject.registerClass({
       text: '  |  '
     })
 
-    const additionalInformationLabel = new St.Label({
+    const marketLabel = new St.Label({
       style_class: 'additional-quote-information-label small-text fwb',
-      text: `  |  ${Translations.STOCKS.POST_MARKET}  |  ${toLocalDateFormat(this.cardItem.PostMarketTimestamp, Translations.FORMATS.DEFAULT_DATE_TIME)}`
+      text: `  |  ${Translations.STOCKS.POST_MARKET}`
     })
-
-    additionalInformationLabel.get_clutter_text().set_ellipsize(Pango.EllipsizeMode.NONE)
 
     additionalInformationBox.add_child(quoteChangeLabel)
     additionalInformationBox.add_child(placeHolder)
     additionalInformationBox.add_child(quoteChangePercentLabel)
-    additionalInformationBox.add_child(additionalInformationLabel)
+    additionalInformationBox.add_child(marketLabel)
 
     return additionalInformationBox
   }
@@ -267,6 +255,10 @@ export const StockCard = GObject.registerClass({
     })
 
     detailBox.add_child(this._createLeftDetailBox({ quoteSummary, transactionResult }))
+
+    const spacer = new St.Label({ text: '    ', style_class: 'small-text' })
+    detailBox.add_child(spacer)
+
     detailBox.add_child(this._createRightDetailBox({ quoteSummary, transactionResult }))
 
     return detailBox
@@ -275,7 +267,7 @@ export const StockCard = GObject.registerClass({
   _createLeftDetailBox ({ quoteSummary, transactionResult }) {
     const leftDetailBox = new St.BoxLayout({
       style_class: 'stock-left-details-box',
-      x_expand: true,
+      x_expand: false,
       y_expand: false,
       vertical: true
     })
@@ -291,7 +283,7 @@ export const StockCard = GObject.registerClass({
   _createRightDetailBox ({ quoteSummary, transactionResult }) {
     const rightDetailBox = new St.BoxLayout({
       style_class: 'stock-details-box',
-      x_expand: true,
+      x_expand: false,
       y_expand: false,
       vertical: true
     })
@@ -307,7 +299,7 @@ export const StockCard = GObject.registerClass({
   _createDetailItem (label, value) {
     const detailItem = new St.BoxLayout({
       style_class: 'detail-item-bin',
-      x_expand: true,
+      x_expand: false,
       y_expand: false
     })
 
@@ -320,12 +312,13 @@ export const StockCard = GObject.registerClass({
   _createDetailItemLabel (text) {
     const detailItemLabel = new St.Bin({
       style_class: 'detail-item-label-bin',
-      x_expand: true,
+      x_expand: false,
       y_expand: false,
       x_align: Clutter.ActorAlign.START,
       child: new St.Label({ style_class: 'detail-item-label small-text fwb', text })
     })
-
+    const spacer = new St.Label({ text: ' ', style_class: 'small-text' })
+    detailItemLabel.add_child(spacer)
     return detailItemLabel
   }
 

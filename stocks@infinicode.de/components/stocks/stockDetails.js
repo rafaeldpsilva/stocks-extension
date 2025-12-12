@@ -170,11 +170,6 @@ export const StockDetails = GObject.registerClass({
         this._createDetailItemValue(roundOrDefault(quoteSummary.High))
     ))
 
-    leftDetailBox.add_child(this._createDetailItem(
-        this._createDetailItemLabel(Translations.STOCKS.TIME),
-        this._createDetailItemValue(toLocalDateFormat(quoteSummary.Timestamp, Translations.FORMATS.DEFAULT_DATE_TIME))
-    ))
-
     return leftDetailBox
   }
 
@@ -196,20 +191,6 @@ export const StockDetails = GObject.registerClass({
         this._createDetailItemValue(roundOrDefault(quoteSummary.PreviousClose))
     ))
 
-    if (quoteSummary.MarketState === MARKET_STATES.PRE) {
-      rightDetailBox.add_child(this._createDetailItem(
-          this._createDetailItemLabel(Translations.STOCKS.TIME_PRE_MARKET),
-          this._createDetailItemValue(toLocalDateFormat(quoteSummary.PreMarketTimestamp, Translations.FORMATS.DEFAULT_DATE_TIME))
-      ))
-    }
-
-    if (quoteSummary.MarketState === MARKET_STATES.POST) {
-      rightDetailBox.add_child(this._createDetailItem(
-          this._createDetailItemLabel(Translations.STOCKS.TIME_POST_MARKET),
-          this._createDetailItemValue(toLocalDateFormat(quoteSummary.PostMarketTimestamp, Translations.FORMATS.DEFAULT_DATE_TIME))
-      ))
-    }
-
     rightDetailBox.add_child(this._createDetailItem(
         this._createDetailItemLabel(Translations.STOCKS.CLOSE),
         this._createDetailItemValue(roundOrDefault(quoteSummary.Close))
@@ -218,11 +199,6 @@ export const StockDetails = GObject.registerClass({
     rightDetailBox.add_child(this._createDetailItem(
         this._createDetailItemLabel(Translations.STOCKS.LOW),
         this._createDetailItemValue(roundOrDefault(quoteSummary.Low))
-    ))
-
-    rightDetailBox.add_child(this._createDetailItem(
-        this._createDetailItemLabel(Translations.STOCKS.VOLUME),
-        this._createDetailItemValue(fallbackIfNaN(quoteSummary.Volume))
     ))
 
     return rightDetailBox

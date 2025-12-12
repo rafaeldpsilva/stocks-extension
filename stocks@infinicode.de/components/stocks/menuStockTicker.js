@@ -83,7 +83,10 @@ export const MenuStockTicker = GObject.registerClass({
       return
     }
 
-    this._showLoadingInfoTimeoutId = setTimeout(this._showInfoMessage.bind(this), 500)
+    const hasContent = this.get_n_children() > 0
+    if (!hasContent) {
+      this._showLoadingInfoTimeoutId = setTimeout(this._showInfoMessage.bind(this), 500)
+    }
 
     const [yahooQuoteSummaries, otherQuoteSummaries] = await Promise.all([
       FinanceService.getQuoteSummaryList({
@@ -99,7 +102,9 @@ export const MenuStockTicker = GObject.registerClass({
 
     const wildMixOfQuoteSummaries = [...yahooQuoteSummaries, ...otherQuoteSummaries]
 
-    clearTimeout(this._showLoadingInfoTimeoutId)
+    if (this._showLoadingInfoTimeoutId) {
+      clearTimeout(this._showLoadingInfoTimeoutId)
+    }
 
     this._createMenuTicker({ tickerBatch, quoteSummaries: wildMixOfQuoteSummaries })
   }

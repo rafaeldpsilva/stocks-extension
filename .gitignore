@@ -1,0 +1,5 @@
+_build/
+schemas/
+locale/
+tests/
+CLAUDE.md

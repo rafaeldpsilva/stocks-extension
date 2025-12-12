@@ -13,7 +13,7 @@ export const initTranslations = (_) => {
     EMPTY_TICKER_TEXT: _('stocks'),
     UNKNOWN: _('UNKNOWN'),
     PROVIDERS: {
-      YAHOO: _('Yahoo'),
+      YAHOO: _('Yahoo Finance'),
       EAST_MONEY: _('EastMoney')
     },
     TRANSACTIONS: {
@@ -57,7 +57,19 @@ export const initTranslations = (_) => {
       TICKER_STOCK_AMOUNT_LABEL: _('Items to show in ticker'),
       TICKER_INTERVAL_LABEL: _('Stock Panel Ticker Interval in Seconds'),
       SHOW_TICKER_OFF_MARKET_PRICES_LABEL: _('Show off-market prices in Ticker'),
-      USE_NAMES_FROM_PROVIDER_LABEL: _('Use instrument names from provider')
+      USE_NAMES_FROM_PROVIDER_LABEL: _('Use instrument names from provider'),
+      IMPORT_PORTFOLIO_CSV: _('Import Portfolio from CSV'),
+      IMPORT_DIALOG_TITLE: _('Select CSV File'),
+      IMPORT_NAME_DIALOG_TITLE: _('Portfolio Name'),
+      IMPORT_NAME_DIALOG_MESSAGE: _('Enter a name for the imported portfolio:'),
+      IMPORT_NAME_DIALOG_DEFAULT: _('Imported Portfolio %s'),
+      IMPORT_SUCCESS: _('Successfully imported %d symbols and %d transactions'),
+      IMPORT_ERROR: _('Import failed: %s'),
+      IMPORT_PARTIAL_SUCCESS: _('Imported %d symbols and %d transactions with %d errors'),
+      CSV_PARSE_ERROR: _('Failed to parse CSV file'),
+      CSV_INVALID_FORMAT: _('Invalid CSV format'),
+      CSV_NO_SYMBOLS: _('No valid symbols found in CSV'),
+      CSV_FILE_ERROR: _('Could not read file: %s')
     },
     STOCKS: {
       SYMBOL: _('Symbol'),
