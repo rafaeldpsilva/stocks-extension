@@ -172,6 +172,8 @@ export const StockOverviewScreen = GObject.registerClass({
 
     let portfolioTodayTotal = 0
     let portfolioTotal = 0
+    let portfolioTotalValue = 0
+    let portfolioUnrealizedCost = 0
 
     symbols.forEach(symbolData => {
       const { symbol, provider } = symbolData
@@ -195,10 +197,21 @@ export const StockOverviewScreen = GObject.registerClass({
         portfolioTotal += transactionResult.total
       }
 
+      if (transactionResult && transactionResult.value != null) {
+        portfolioTotalValue += transactionResult.value
+      }
+
+      if (transactionResult && transactionResult.unrealizedCost != null) {
+        portfolioUnrealizedCost += transactionResult.unrealizedCost
+      }
+
       this._list.addItem(new StockCard(quoteSummary, this._settings.selected_portfolio))
     })
 
-    this._updatePortfolioSummary(portfolioTodayTotal, portfolioTotal)
+    const portfolioTodayPercent = portfolioTotalValue > 0 ? (portfolioTodayTotal / (portfolioTotalValue - portfolioTodayTotal)) * 100 : 0
+    const portfolioTotalPercent = portfolioUnrealizedCost > 0 ? (portfolioTotal / portfolioUnrealizedCost) * 100 : 0
+
+    this._updatePortfolioSummary(portfolioTodayTotal, portfolioTotal, portfolioTodayPercent, portfolioTotalPercent)
     this._updateLastUpdateTime()
 
     this._filter_results(this._searchBar.search_text())
@@ -215,7 +228,7 @@ export const StockOverviewScreen = GObject.registerClass({
     this._isRendering = false
   }
 
-  _updatePortfolioSummary (todayTotal, total) {
+  _updatePortfolioSummary (todayTotal, total, todayPercent, totalPercent) {
     this._portfolioSummary.destroy_all_children()
 
     if (todayTotal === 0 && total === 0) {
@@ -239,8 +252,14 @@ export const StockOverviewScreen = GObject.registerClass({
       text: `${roundOrDefault(todayTotal)} $`
     })
 
+    const todayPercentValue = new St.Label({
+      style_class: `portfolio-summary-value small-text fwb ${todayColorClass} percentage`,
+      text: `(${roundOrDefault(todayPercent)} %)`
+    })
+
     summaryBox.add_child(todayLabel)
     summaryBox.add_child(todayValue)
+    summaryBox.add_child(todayPercentValue)
 
     const spacer = new St.Label({ text: '    ', style_class: 'small-text' })
     summaryBox.add_child(spacer)
@@ -256,8 +275,14 @@ export const StockOverviewScreen = GObject.registerClass({
       text: `${roundOrDefault(total)} $`
     })
 
+    const totalPercentValue = new St.Label({
+      style_class: `portfolio-summary-value small-text fwb ${totalColorClass} percentage`,
+      text: `(${roundOrDefault(totalPercent)} %)`
+    })
+
     summaryBox.add_child(totalLabel)
     summaryBox.add_child(totalValue)
+    summaryBox.add_child(totalPercentValue)
 
     this._portfolioSummary.add_child(summaryBox)
   }

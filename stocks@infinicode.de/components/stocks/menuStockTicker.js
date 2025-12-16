@@ -131,16 +131,15 @@ export const MenuStockTicker = GObject.registerClass({
       this.add_child(stockTickerItemBox)
 
       if (index + 1 !== quoteSummaries.length) {
-        const separatorBin = new St.Bin({
-          style_class: 'separator-bin',
+        const spacerBin = new St.Bin({
+          style_class: 'spacer-bin',
           y_align: Clutter.ActorAlign.CENTER,
           child: new St.Label({
-            style_class: 'separator',
-            text: '|'
+            style_class: 'spacer',
           })
         })
 
-        this.add_child(separatorBin)
+        this.add_child(spacerBin)
       }
     })
   }
