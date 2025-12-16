@@ -29,12 +29,12 @@ export const loadCalculatedTransactionsForSymbol = ({ portfolioId, quoteSummary 
     return true
   })
 
-  let realized = null
-  let allToday = null
-  let allTotal = null
-  let totalValue = null
-  let totalCost = null
-  let unrealizedCost = null
+  let realized = 0
+  let allToday = 0
+  let allTotal = 0
+  let totalValue = 0
+  let totalCost = 0
+  let unrealizedCost = 0
 
   buyTransactions.forEach(buy => {
     const restAmount = buy.amount - (buy.soldAmount || 0)
@@ -75,19 +75,22 @@ export const loadCalculatedTransactionsForSymbol = ({ portfolioId, quoteSummary 
     }
   })
 
+  const hasActivePositions = totalValue > 0
+  const hasRealizedGains = realized > 0 || (totalCost > unrealizedCost)
+
   return {
     transactions: transactionsBySymbol.reverse(),
-    today: allToday,
-    todayPercent: allToday != null ? (allToday / (totalValue + Math.abs(allToday)) * 100) : null,
-    total: allTotal,
-    totalPercent: allTotal != null ? (allTotal / unrealizedCost) * 100 : null,
-    value: totalValue,
+    today: hasActivePositions ? allToday : null,
+    todayPercent: hasActivePositions && totalValue > 0 ? (allToday / (totalValue - allToday) * 100) : null,
+    total: hasActivePositions ? allTotal : null,
+    totalPercent: hasActivePositions && unrealizedCost > 0 ? (allTotal / unrealizedCost) * 100 : null,
+    value: hasActivePositions ? totalValue : null,
     cost: totalCost,
-    unrealizedCost,
-    realized,
-    realizedPercent: realized != null ? (realized / (totalCost - unrealizedCost)) * 100 : null,
-    alltime: allTotal != null ? realized + allTotal : null,
-    alltimePercent: allTotal != null ? ((realized + allTotal) / totalCost) * 100 : null
+    unrealizedCost: hasActivePositions ? unrealizedCost : null,
+    realized: hasRealizedGains ? realized : null,
+    realizedPercent: hasRealizedGains && (totalCost - unrealizedCost) > 0 ? (realized / (totalCost - unrealizedCost)) * 100 : null,
+    alltime: hasActivePositions ? realized + allTotal : (hasRealizedGains ? realized : null),
+    alltimePercent: totalCost > 0 ? ((realized + (hasActivePositions ? allTotal : 0)) / totalCost) * 100 : null
   }
 }
 
@@ -100,7 +103,7 @@ export const save = ({ portfolioId, symbol, transaction }) => {
   const updatedItem = {
     ...transaction,
     price: parseFloat(transaction.price),
-    amount: parseInt(transaction.amount),
+    amount: parseFloat(transaction.amount),
   }
 
   if (transaction.id) {
@@ -132,7 +135,7 @@ export const remove = ({ portfolioId, symbol, transaction }) => {
 }
 
 export const validate = (transaction) => {
-  if (isNaN(parseInt(transaction.amount))) {
+  if (isNaN(parseFloat(transaction.amount))) {
     return Translations.TRANSACTIONS.INVALID_AMOUNT
   }
 

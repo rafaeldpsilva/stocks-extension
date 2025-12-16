@@ -48,7 +48,6 @@ export const SearchBar = GObject.registerClass({
       const backIconButton = new IconButton({
         style_class: 'navigate-back-icon-button',
         icon_name: 'go-previous-symbolic',
-        text: Translations.BACK,
         onClick: () => this._mainEventHandler.emit('show-screen', { screen: this.back_screen_name, additionalData: this.additionalDataForBackScreen })
       })
 
@@ -106,7 +105,7 @@ export const SearchBar = GObject.registerClass({
 
     const settingsIconButton = new IconButton({
       style_class: 'settings-icon',
-      icon_name: 'emblem-system-symbolic',
+      icon_name: 'preferences-system-symbolic',
       icon_size: 18,
       onClick: () => {
         const settings = new SettingsHandler()

@@ -16,7 +16,7 @@
 }
 
 .stocks-extension .quote-positive {
-    color: #00873c;
+    color: #00E676;
     font-weight: bolder;
 }
 
@@ -47,8 +47,7 @@
 
 /* make position consistent to panel icon */
 .stocks-extension .menu-stock-ticker {
-    max-width: 200px;
-    width: 200px;
+    max-width: 400px;
 }
 
 .stocks-extension .menu-stock-ticker .stock-info-box,
@@ -206,4 +205,21 @@
 .stocks-extension .stock-card .detail-item-label,
 .stocks-extension .stock-card .detail-item-value {
     font-size: .8em;
+    margin-right: 5px;
+}
+
+.stocks-extension .portfolio-summary {
+    padding: 5px 15px;
+    margin: 5px 0;
+}
+
+.stocks-extension .portfolio-summary-box {
+    padding: 5px 10px;
+}
+
+.stocks-extension .last-update {
+    padding: 5px 15px;
+    margin: 5px 0;
+    font-style: italic;
+    opacity: 0.7;
 }
