@@ -159,17 +159,11 @@ export const StockCard = GObject.registerClass({
     })
 
     const quoteChangePercentLabel = new St.Label({
-      style_class: `small-text fwb ${quoteColorStyleClass}`,
-      text: `${roundOrDefault(this.cardItem.ChangePercent)} %`
-    })
-
-    const placeHolder = new St.Label({
-      style_class: 'small-text fwb',
-      text: '  |  '
+      style_class: `small-text fwb ${quoteColorStyleClass} percentage`,
+      text: `(${roundOrDefault(this.cardItem.ChangePercent)} %)`
     })
 
     additionalInformationBox.add_child(quoteChangeLabel)
-    additionalInformationBox.add_child(placeHolder)
     additionalInformationBox.add_child(quoteChangePercentLabel)
 
     return additionalInformationBox
@@ -189,13 +183,8 @@ export const StockCard = GObject.registerClass({
     })
 
     const quoteChangePercentLabel = new St.Label({
-      style_class: `small-text fwb ${quoteColorStyleClass}`,
-      text: `${roundOrDefault(this.cardItem.PreMarketChangePercent)} %`
-    })
-
-    const placeHolder = new St.Label({
-      style_class: 'small-text fwb',
-      text: '  |  '
+      style_class: `small-text fwb ${quoteColorStyleClass} percentage`,
+      text: `(${roundOrDefault(this.cardItem.PreMarketChangePercent)} %)`
     })
 
     const marketLabel = new St.Label({
@@ -204,7 +193,6 @@ export const StockCard = GObject.registerClass({
     })
 
     additionalInformationBox.add_child(quoteChangeLabel)
-    additionalInformationBox.add_child(placeHolder)
     additionalInformationBox.add_child(quoteChangePercentLabel)
     additionalInformationBox.add_child(marketLabel)
 
@@ -226,12 +214,7 @@ export const StockCard = GObject.registerClass({
 
     const quoteChangePercentLabel = new St.Label({
       style_class: `small-text fwb ${quoteColorStyleClass}`,
-      text: `${roundOrDefault(this.cardItem.PostMarketChangePercent)} %`
-    })
-
-    const placeHolder = new St.Label({
-      style_class: 'small-text fwb',
-      text: '  |  '
+      text: `(${roundOrDefault(this.cardItem.PostMarketChangePercent)} %)`
     })
 
     const marketLabel = new St.Label({
@@ -240,7 +223,6 @@ export const StockCard = GObject.registerClass({
     })
 
     additionalInformationBox.add_child(quoteChangeLabel)
-    additionalInformationBox.add_child(placeHolder)
     additionalInformationBox.add_child(quoteChangePercentLabel)
     additionalInformationBox.add_child(marketLabel)
 
@@ -273,7 +255,7 @@ export const StockCard = GObject.registerClass({
     })
 
     leftDetailBox.add_child(this._createDetailItem(
-        this._createDetailItemLabel(Translations.MISC.TODAY),
+        this._createDetailItemLabel(`${Translations.MISC.TODAY}:`),
         this._createDetailItemValueForChange(transactionResult.today, quoteSummary.CurrencySymbol, transactionResult.todayPercent)
     ))
 
@@ -289,7 +271,7 @@ export const StockCard = GObject.registerClass({
     })
 
     rightDetailBox.add_child(this._createDetailItem(
-        this._createDetailItemLabel(Translations.MISC.TOTAL),
+        this._createDetailItemLabel(`${Translations.MISC.TOTAL}: `),
         this._createDetailItemValueForChange(transactionResult.total, quoteSummary.CurrencySymbol, transactionResult.totalPercent)
     ))
 
@@ -335,9 +317,7 @@ export const StockCard = GObject.registerClass({
     const changeLabel = new St.Label({ style_class: `detail-item-value small-text fwb change tar ${quoteColorStyleClass}`, text: `${roundOrDefault(change)}${currency ? ` ${currency}` : ''}` })
     detailItem.add_child(changeLabel)
 
-    detailItem.add_child(new St.Label({ style_class: 'detail-item-value small-text fwb tar', text: ' / ' }))
-
-    const changePercentLabel = new St.Label({ style_class: `detail-item-value change small-text fwb tar ${quoteColorStyleClass}`, text: `${roundOrDefault(changePercent)} %` })
+    const changePercentLabel = new St.Label({ style_class: `detail-item-value change small-text fwb tar ${quoteColorStyleClass}`, text: `(${roundOrDefault(changePercent)} %)` })
     detailItem.add_child(changePercentLabel)
 
     return detailItem

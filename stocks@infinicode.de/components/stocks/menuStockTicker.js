@@ -4,22 +4,12 @@ import Pango from 'gi://Pango'
 import St from 'gi://St'
 
 import { getStockColorStyleClass, isNullOrEmpty, roundOrDefault } from '../../helpers/data.js'
-import { SettingsHandler, STOCKS_PORTFOLIOS, STOCKS_SHOW_OFF_MARKET_TICKER_PRICES, STOCKS_SYMBOL_PAIRS, STOCKS_TICKER_DISPLAY_VARIATION, STOCKS_TICKER_INTERVAL, STOCKS_TICKER_STOCK_AMOUNT, STOCKS_USE_PROVIDER_INSTRUMENT_NAMES } from '../../helpers/settings.js'
+import { SettingsHandler, STOCKS_PORTFOLIOS, STOCKS_SYMBOL_PAIRS, STOCKS_TICKER_INTERVAL, STOCKS_USE_PROVIDER_INSTRUMENT_NAMES } from '../../helpers/settings.js'
 
 import { Translations } from '../../helpers/translations.js'
 import * as FinanceService from '../../services/financeService.js'
 
 import { FINANCE_PROVIDER, MARKET_STATES } from '../../services/meta/generic.js'
-
-const SETTING_KEYS_TO_REFRESH = [
-  STOCKS_SYMBOL_PAIRS,
-  STOCKS_PORTFOLIOS,
-  STOCKS_TICKER_INTERVAL,
-  STOCKS_SHOW_OFF_MARKET_TICKER_PRICES,
-  STOCKS_TICKER_DISPLAY_VARIATION,
-  STOCKS_TICKER_STOCK_AMOUNT,
-  STOCKS_USE_PROVIDER_INSTRUMENT_NAMES
-]
 
 const TICKER_ITEM_VARIATION = {
   COMPACT: 0,
@@ -42,20 +32,29 @@ export const MenuStockTicker = GObject.registerClass({
     this._toggleDisplayTimeout = null
     this._settingsChangedId = null
     this._showLoadingInfoTimeoutId = null
+    this._destroyed = false
+    this._quoteSummariesCache = null
+    this._lastFetchTime = 0
 
     this._settings = new SettingsHandler()
-
     this._sync().catch(e => log(e))
 
     this.connect('destroy', this._onDestroy.bind(this))
     this.connect('button-press-event', this._onPress.bind(this))
 
     this._settingsChangedId = this._settings.connect('changed', (value, key) => {
-      this._registerTimeout(false)
-
-      if (SETTING_KEYS_TO_REFRESH.includes(key)) {
-        this._sync().catch(e => log(e))
+      // Invalidate cache if symbols changed
+      if (key === STOCKS_SYMBOL_PAIRS || key === STOCKS_PORTFOLIOS || key === STOCKS_USE_PROVIDER_INSTRUMENT_NAMES) {
+        this._lastFetchTime = 0
       }
+
+      // Ticker interval - restart timer instead of syncing
+      if (key === STOCKS_TICKER_INTERVAL) {
+        this._registerTimeout(false)
+        return
+      }
+
+      this._sync().catch(e => log(e))
     })
 
     this._registerTimeout(false)
@@ -76,37 +75,42 @@ export const MenuStockTicker = GObject.registerClass({
   async _sync () {
     const tickerEnabledItems = this._getEnabledSymbols()
 
-    const tickerBatch = this._getBatch(tickerEnabledItems, this._visibleStockIndex, this._settings.ticker_stock_amount)
-
-    if (isNullOrEmpty(tickerBatch)) {
+    if (isNullOrEmpty(tickerEnabledItems)) {
       this._showInfoMessage(Translations.EMPTY_TICKER_TEXT)
       return
     }
 
-    const hasContent = this.get_n_children() > 0
-    if (!hasContent) {
+    const now = Date.now()
+    const refreshIntervalMs = (this._settings.refresh_interval || 15) * 60 * 1000
+    const shouldFetch = !this._quoteSummariesCache || (now - this._lastFetchTime) >= refreshIntervalMs
+
+    if (shouldFetch) {
+      this._lastFetchTime = now
       this._showLoadingInfoTimeoutId = setTimeout(this._showInfoMessage.bind(this), 500)
-    }
 
-    const [yahooQuoteSummaries, otherQuoteSummaries] = await Promise.all([
-      FinanceService.getQuoteSummaryList({
-        symbolsWithFallbackName: tickerBatch.filter(item => item.provider === FINANCE_PROVIDER.YAHOO).map(symbolData => ({ ...symbolData, fallbackName: symbolData.name })),
-        provider: FINANCE_PROVIDER.YAHOO
-      }),
+      const [yahooQuoteSummaries, otherQuoteSummaries] = await Promise.all([
+        FinanceService.getQuoteSummaryList({
+          symbolsWithFallbackName: tickerEnabledItems.filter(item => item.provider === FINANCE_PROVIDER.YAHOO).map(symbolData => ({ ...symbolData, fallbackName: symbolData.name })),
+          provider: FINANCE_PROVIDER.YAHOO
+        }),
 
-      tickerBatch.filter(item => item.provider !== FINANCE_PROVIDER.YAHOO).map(symbolData => FinanceService.getQuoteSummary({
-        ...symbolData,
-        fallbackName: symbolData.name
-      }))
-    ])
+        tickerEnabledItems.filter(item => item.provider !== FINANCE_PROVIDER.YAHOO).map(symbolData => FinanceService.getQuoteSummary({
+          ...symbolData,
+          fallbackName: symbolData.name
+        }))
+      ])
 
-    const wildMixOfQuoteSummaries = [...yahooQuoteSummaries, ...otherQuoteSummaries]
-
-    if (this._showLoadingInfoTimeoutId) {
       clearTimeout(this._showLoadingInfoTimeoutId)
+
+      if (this._destroyed) {
+        return
+      }
+
+      this._quoteSummariesCache = [...yahooQuoteSummaries, ...otherQuoteSummaries]
     }
 
-    this._createMenuTicker({ tickerBatch, quoteSummaries: wildMixOfQuoteSummaries })
+    const tickerBatch = this._getBatch(tickerEnabledItems, this._visibleStockIndex, this._settings.ticker_stock_amount)
+    this._createMenuTicker({ tickerBatch, quoteSummaries: this._quoteSummariesCache })
   }
 
   _createMenuTicker ({ tickerBatch, quoteSummaries }) {
@@ -127,16 +131,15 @@ export const MenuStockTicker = GObject.registerClass({
       this.add_child(stockTickerItemBox)
 
       if (index + 1 !== quoteSummaries.length) {
-        const separatorBin = new St.Bin({
-          style_class: 'separator-bin',
+        const spacerBin = new St.Bin({
+          style_class: 'spacer-bin',
           y_align: Clutter.ActorAlign.CENTER,
           child: new St.Label({
-            style_class: 'separator',
-            text: '|'
+            style_class: 'spacer',
           })
         })
 
-        this.add_child(separatorBin)
+        this.add_child(spacerBin)
       }
     })
   }
@@ -274,6 +277,10 @@ export const MenuStockTicker = GObject.registerClass({
   }
 
   _showInfoMessage (message) {
+    if (this._destroyed) {
+      return
+    }
+
     this.destroy_all_children()
 
     const infoMessageBin = new St.Bin({
@@ -294,6 +301,7 @@ export const MenuStockTicker = GObject.registerClass({
     const buttonID = event.get_button()
 
     if (buttonID === 2 || buttonID === 3) {
+      this._lastFetchTime = 0 // Force refresh on next sync
       this._registerTimeout()
 
       // avoid propagation
@@ -322,6 +330,8 @@ export const MenuStockTicker = GObject.registerClass({
   }
 
   _onDestroy () {
+    this._destroyed = true
+
     if (this._toggleDisplayTimeout) {
       clearInterval(this._toggleDisplayTimeout)
     }

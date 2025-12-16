@@ -4,11 +4,11 @@ import { SettingsHandler } from '../helpers/settings.js'
 import { FINANCE_PROVIDER } from './meta/generic.js'
 import { QuoteSummary } from './dto/quoteSummary.js'
 
-import * as yahooServicePython from '../services/yahooServicePython.js'
+import * as yahooService from '../services/yahooService.js'
 import * as eastMoneyService from '../services/eastMoneyService.js'
 
 const services = {
-  [FINANCE_PROVIDER.YAHOO]: yahooServicePython,
+  [FINANCE_PROVIDER.YAHOO]: yahooService,
   [FINANCE_PROVIDER.EAST_MONEY]: eastMoneyService
 }
 
