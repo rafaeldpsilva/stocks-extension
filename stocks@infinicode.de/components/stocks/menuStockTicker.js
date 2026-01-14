@@ -167,7 +167,7 @@ export const MenuStockTicker = GObject.registerClass({
     const stockQuoteLabel = new St.Label({
       y_align: Clutter.ActorAlign.CENTER,
       y_expand: true,
-      style_class: `ticker-stock-quote-label fwb ${quoteColorStyleClass}`,
+      style_class: `ticker-stock-quote-label fwb`,
       text: `${roundOrDefault(price)}${currencySymbol}`
     })
 
@@ -218,7 +218,7 @@ export const MenuStockTicker = GObject.registerClass({
     const stockQuoteLabel = new St.Label({
       y_align: regular ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START,
       y_expand: true,
-      style_class: `ticker-stock-quote-label fwb ${quoteColorStyleClass}`,
+      style_class: `ticker-stock-quote-label fwb`,
       text: `${roundOrDefault(price)}${currencySymbol}`
     })
 
@@ -241,8 +241,7 @@ export const MenuStockTicker = GObject.registerClass({
   }
 
   _createMinimalTickerItemBox (quoteSummary) {
-    let { symbol, currencySymbol, price, change } = this._generateTickerInformation(quoteSummary)
-    const quoteColorStyleClass = getStockColorStyleClass(change)
+    let { symbol, currencySymbol, price } = this._generateTickerInformation(quoteSummary)
 
     currencySymbol = currencySymbol || ''
 
@@ -263,7 +262,7 @@ export const MenuStockTicker = GObject.registerClass({
     const stockQuoteLabel = new St.Label({
       y_align: Clutter.ActorAlign.CENTER,
       y_expand: true,
-      style_class: `ticker-stock-quote-label fwb ${quoteColorStyleClass}`,
+      style_class: `ticker-stock-quote-label fwb`,
       text: `${roundOrDefault(price)}${currencySymbol}`
     })
 

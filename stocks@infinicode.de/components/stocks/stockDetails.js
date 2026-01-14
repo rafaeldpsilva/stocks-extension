@@ -71,8 +71,6 @@ export const StockDetails = GObject.registerClass({
   }
 
   _createQuoteInfo ({ quoteSummary }) {
-    const quoteColorStyleClass = getStockColorStyleClass(quoteSummary.Change)
-
     const quoteInformationBox = new St.BoxLayout({
       style_class: 'quote-information-box tar',
       x_expand: false,
@@ -80,19 +78,17 @@ export const StockDetails = GObject.registerClass({
     })
 
     const regularQuoteLabel = new St.Label({
-      style_class: `quote-label ${quoteColorStyleClass}`,
+      style_class: `quote-label`,
       text: `${roundOrDefault(quoteSummary.Close)}${quoteSummary.CurrencySymbol ? ` ${quoteSummary.CurrencySymbol}` : ''}`
     })
 
     quoteInformationBox.add_child(regularQuoteLabel)
 
     if (quoteSummary.MarketState === MARKET_STATES.PRE) {
-      const preMarketQuoteColorStyleClass = getStockColorStyleClass(quoteSummary.PreMarketChange)
-
       quoteInformationBox.add_child(new St.Label({ style_class: 'quote-separation tar', text: ' / ' }))
 
       const preMarketQuoteLabel = new St.Label({
-        style_class: `quote-label pre-market ${preMarketQuoteColorStyleClass}`,
+        style_class: `quote-label pre-market`,
         text: `${roundOrDefault(quoteSummary.PreMarketPrice)}${quoteSummary.CurrencySymbol ? ` ${quoteSummary.CurrencySymbol}` : ''}*`
       })
 
@@ -100,12 +96,10 @@ export const StockDetails = GObject.registerClass({
     }
 
     if (quoteSummary.MarketState === MARKET_STATES.POST) {
-      const postMarketQuoteColorStyleClass = getStockColorStyleClass(quoteSummary.PostMarketChange)
-
       quoteInformationBox.add_child(new St.Label({ style_class: 'quote-separation tar', text: ' / ' }))
 
       const postMarketQuoteLabel = new St.Label({
-        style_class: `quote-label post-market ${postMarketQuoteColorStyleClass}`,
+        style_class: `quote-label post-market`,
         text: `${roundOrDefault(quoteSummary.PostMarketPrice)}${quoteSummary.CurrencySymbol ? ` ${quoteSummary.CurrencySymbol}` : ''}*`
       })
 

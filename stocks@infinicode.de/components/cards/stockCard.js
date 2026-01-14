@@ -96,20 +96,16 @@ export const StockCard = GObject.registerClass({
       x_align: Clutter.ActorAlign.END
     })
 
-    const quoteColorStyleClass = getStockColorStyleClass(this.cardItem.Change)
-
     const regularQuoteLabel = new St.Label({
-      style_class: `quote-label ${quoteColorStyleClass}`,
+      style_class: `quote-label`,
       text: `${roundOrDefault(this.cardItem.Close)}${this.cardItem.CurrencySymbol ? ` ${this.cardItem.CurrencySymbol}` : ''}`
     })
 
     quoteInformationPriceBox.add_child(regularQuoteLabel)
 
     if (this.cardItem.MarketState === MARKET_STATES.PRE) {
-      const preMarketQuoteColorStyleClass = getStockColorStyleClass(this.cardItem.PreMarketChange)
-
       const preMarketQuoteLabel = new St.Label({
-        style_class: `quote-label pre-market ${preMarketQuoteColorStyleClass}`,
+        style_class: `quote-label pre-market`,
         text: `${roundOrDefault(this.cardItem.PreMarketPrice)}${this.cardItem.CurrencySymbol ? ` ${this.cardItem.CurrencySymbol}` : ''}*`
       })
 
@@ -118,10 +114,8 @@ export const StockCard = GObject.registerClass({
     }
 
     if (this.cardItem.MarketState === MARKET_STATES.POST) {
-      const postMarketQuoteColorStyleClass = getStockColorStyleClass(this.cardItem.PostMarketChange)
-
       const postMarketQuoteLabel = new St.Label({
-        style_class: `quote-label post-market ${postMarketQuoteColorStyleClass}`,
+        style_class: `quote-label post-market`,
         text: `${roundOrDefault(this.cardItem.PostMarketPrice)}${this.cardItem.CurrencySymbol ? ` ${this.cardItem.CurrencySymbol}` : ''}*`
       })
 
