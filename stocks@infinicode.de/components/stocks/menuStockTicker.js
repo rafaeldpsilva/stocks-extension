@@ -21,7 +21,7 @@ const TICKER_ITEM_VARIATION = {
 export const MenuStockTicker = GObject.registerClass({
   GTypeName: 'StockExtension_MenuStockTicker'
 }, class MenuStockTicker extends St.BoxLayout {
-  _init () {
+  _init (eventHandler) {
     super._init({
       style_class: 'menu-stock-ticker',
       y_align: Clutter.ActorAlign.CENTER,
@@ -41,6 +41,19 @@ export const MenuStockTicker = GObject.registerClass({
 
     this.connect('destroy', this._onDestroy.bind(this))
     this.connect('button-press-event', this._onPress.bind(this))
+
+    if (eventHandler) {
+      eventHandler.connect('open-state-changed', (_, data) => {
+        if (data.isOpen) {
+          if (this._toggleDisplayTimeout) {
+            clearInterval(this._toggleDisplayTimeout)
+            this._toggleDisplayTimeout = null
+          }
+        } else {
+          this._registerTimeout(false)
+        }
+      })
+    }
 
     this._settingsChangedId = this._settings.connect('changed', (value, key) => {
       // Invalidate cache if symbols changed

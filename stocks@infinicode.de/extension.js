@@ -65,7 +65,7 @@ let StocksMenuButton = GObject.registerClass(class StocksMenuButton extends Pane
     super._init(menuAlignment, _('Stocks'))
     this.add_style_class_name('stocks-extension')
 
-    this.add_child(new MenuStockTicker())
+    this.add_child(new MenuStockTicker(this._mainEventHandler))
 
     const bin = new St.Widget({ style_class: 'stocks-extension' })
     bin._delegate = this
